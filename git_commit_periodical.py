@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """git commit at regular intervals
 
+https://github.com/mica5/auto-git-commits
+
 Version 0.1
 2018-03-21
 """
@@ -9,10 +11,6 @@ import datetime
 from dateutil import parser
 import subprocess
 from time import sleep
-
-def call(*args, **kwargs):
-    print(args[0])
-    return subprocess.call(*args, **kwargs)
 
 def run_main():
     args = parse_cl_args()
@@ -26,21 +24,25 @@ def run_main():
     period = next_time - now
     sleep_seconds = period.total_seconds()
 
+    # TODO add option to make it only run a specified number of times
     while True:
         if args.pull_first:
-            call('git pull', shell=True)
+            subprocess.call('git pull', shell=True)
 
         for pattern in args.patterns:
-            call(
+            # TODO make it possible to make it non-recursive so only specific files are committed
+            subprocess.call(
                 "find . -name '{pattern}'|xargs git add".format(pattern=pattern),
                 shell=True
             )
-        call(
+
+        subprocess.call(
             'git commit --message="{}"'.format(args.message),
             shell=True
         )
+
         if args.push_after:
-            call('git push', shell=True)
+            subprocess.call('git push', shell=True)
         sleep(sleep_seconds)
 
     success = True
